@@ -6,39 +6,39 @@ const videoSchema = new Schema({
     videoFile: {
 
         types: String,
-        required:[ true,"Video file is Require"],
+        required: [true, "Video file is Require"],
     },
     title: {
         types: String,
-        required: [true,"title is Require"],
+        required: [true, "title is Require"],
     },
-    owner:{
-        types:mongoose.Schema.Types.ObjectId,
-        ref:"User"
+    owner: {
+        types: mongoose.Schema.Types.ObjectId,
+        ref: "User"
     },
-    thumnail:{
+    thumnail: {
         types: String,
-        required:[ true,"Video file Require thumnail"],
+        required: [true, "Video file Require thumnail"],
     },
-    describtion:{
-        type:String,
-        required:[ true,"Video file  Require describtion"],
+    describtion: {
+        type: String,
+        required: [true, "Video file  Require describtion"],
     },
-    duration:{
-        type:Number,
-        required:true
-        
+    duration: {
+        type: Number,
+        required: true
+
     },
-    views:{
-        type:Number,
-        default:0
+    views: {
+        type: Number,
+        default: 0
     },
-    isPublished:{
-        type:Boolean,
-        default:true
+    isPublished: {
+        type: Boolean,
+        default: true
     }
 
-},{timestamps:true}
+}, { timestamps: true }
 )
 
 videoSchema.plugin(mongooseAggregatePaginate)
