@@ -3,6 +3,7 @@ import { ApiError } from "../utils/ApiError.js"
 import { User } from "../models/user.model.js"
 import { uploadOnCloudinary } from "../utils/cloudinary.js"
 import { ApiResponse } from "../utils/ApiResponse.js"
+import jwt from "jsonwebtoken";
 
 
 const generateAccessAndRefereshTokens = async (userId) => {
@@ -180,14 +181,56 @@ const loggOutUser = asyncHandler(async (req, res) => {
 
 const refreshToken = asyncHandler(async (req, res) => {
     const incomingRefreshToken = req.cookies.refrenceToken || req.body.refrenceToken
-    
-    if (incomingRefreshToken) {
-        throw new ApiError(401,"UnAuthroize req")
+
+    if (!incomingRefreshToken) {
+        throw new ApiError(401, "UnAuthroize req")
     }
+
+  try {
+      const decodedToken = jwt.verify(
+          incomingRefreshToken,
+          process.env.ACCESS_TOKEN_SECRECT,
+          process.env.RERESH_TOKEN,
+  
+      )
+      const user =await User.findById(decodedToken?._id)
+  
+      if (!user) {
+          throw new ApiError(401,"Invalid Refrence Token")
+          
+      }
+  
+      if (incomingRefreshToken  !==user?.refreshToken) {
+          throw new ApiError(401,"Refresh token")
+          
+      }
+  
+      const options = {
+          httpOnly: true,
+          secure: true
+      }
+      const { accessToken, newRefreshToken } =await generateAccessAndRefereshTokens(user._id)
+  
+      .status(200)
+      .cookies("accessToken",accessToken)
+      .cookies("newRefreshToken",newRefreshToken)
+      .json(
+          new ApiResponse(
+  
+  
+              200,
+              {accessToken,refreshToken:newRefreshToken},
+              "Accesss Token successully"
+          )
+      )
+  } catch (error) {
+    throw new ApiError(401,error?.message||"Invaild Token")
+  }
 
 })
 export {
     registerUser,
     loginUser,
-    loggOutUser
+    loggOutUser,
+    refreshToken
 }
