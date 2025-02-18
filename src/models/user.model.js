@@ -5,7 +5,7 @@ import bcrypt from "bcrypt";
 
 const userSchema = new Schema(
     {
-        username: {
+        username: {  // Unique
             type: String,
             required: true,
             unique: true,
@@ -14,7 +14,7 @@ const userSchema = new Schema(
             index: true
         },
 
-        email: {
+        email: { // Unique
             type: String,
             required: true,
             unique: true,
@@ -61,45 +61,46 @@ const userSchema = new Schema(
 )
 
 // save karta phela password ne encrypt krva 
-userSchema.pre("save",async function(next){
+userSchema.pre("save", async function (next) {
     if (!this.isModified("password")) {
         return next()
     }
-    this.password= await bcrypt.hash(this.password,10)
+    this.password = await bcrypt.hash(this.password, 10)
     next()
 })
-userSchema.methods.isPasswordCorrect=async function (password) {
-   return await bcrypt.compare(password,this.password);
-    
+userSchema.methods.isPasswordCorrect = async function (password) {
+    return await bcrypt.compare(password, this.password);
+
 }
 
-userSchema.methods.genrateAccessToken=  function(){
-   return  jwt.sign(
+userSchema.methods.genrateAccessToken = function () {
+    return jwt.sign(
         {
-            _id:this._id,
-            email:this.email,
-            username:this.username,
-            fullName:this.fullName
+            _id: this._id,
+            email: this.email,
+            username: this.username,
+            fullName: this.fullName
         },
-        process.env.ACCESS_TOKEN,
+
+        process.env.ACCESS_TOKEN_SECRECT,
 
         {
-            expiresIn:process.env.ACCESS_TOKEN_EXPIRY
+            expiresIn: process.env.ACCESS_TOKEN_EXPIRY
         }
 
     )
 }
-userSchema.methods.genraterefrenceToken= async function(){
+userSchema.methods.genraterefrenceToken = async function () {
 
-    return  jwt.sign(
+    return jwt.sign(
         {
-            _id:this._id,
-           
+            _id: this._id,
+
         },
         process.env.RERESH_TOKEN,
 
         {
-            expiresIn:process.env.RERESH_TOKEN_EXPIRY
+            expiresIn: process.env.RERESH_TOKEN_EXPIRY
         }
 
     )
